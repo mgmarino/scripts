@@ -113,10 +113,8 @@ for i in range(nevents):
     doubleWFnorth[j] = workingWF[j*ROOT.BANDWIDTH_FACTOR] * gain + 0.5 + baseline
   doubleWFsouth = ROOT.EXODoubleWaveform(doubleWFnorth)
   if realnoise:
-    funcNorth = getattr(doubleWFnorth,'operator+=<Double_t>')
-    funcSouth = getattr(doubleWFsouth,'operator+=<Double_t>')
-    doubleWFnorth = funcNorth(wfNorth)
-    doubleWFsouth = funcSouth(wfSouth)
+    doubleWFnorth += wfNorth
+    doubleWFsouth += wfSouth
   else:
     noiseTransfer.Transform(doubleWFnorth)
     noiseTransfer.Transform(doubleWFsouth)

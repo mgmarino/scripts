@@ -21,9 +21,6 @@ wfSouth.SetLength(2048)
 outtree.Branch("wfNorth","EXODoubleWaveform",wfNorth)
 outtree.Branch("wfSouth","EXODoubleWaveform",wfSouth)
 
-funcNorth = getattr(wfNorth,'operator+=<Double_t>')
-funcSouth = getattr(wfSouth,'operator+=<Double_t>')
-
 counter = 0
 
 n = t.GetEntries()
@@ -47,8 +44,8 @@ for i in range(n):
     if counter == 0:
       wfNorth.SetSamplingFreq(wf1.GetSamplingFreq())
       wfSouth.SetSamplingFreq(wf2.GetSamplingFreq())
-    wfNorth = funcNorth(wf1)
-    wfSouth = funcSouth(wf2)
+    wfNorth += wf1
+    wfSouth += wf2
   counter += 1
   outtree.Fill()
 
