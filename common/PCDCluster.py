@@ -8,6 +8,9 @@ class Cluster:
     self.driftVelocity = 0.00171
     self.clusterDist = 15.
 
+  def setClusterRadius(self,dist):
+    self.clusterDist = dist
+
   def reset(self):
     self.clusters = []
 
