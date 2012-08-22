@@ -118,7 +118,7 @@ class Digitization(QtCore.QThread):
       if self.useRealNoise:
         for j in range(ROOT.NCHANNEL_PER_WIREPLANE*ROOT.NWIREPLANE):
           wf = wfd.GetWaveformWithChannel(j).Convert()
-          wf -= wf[0] #subtract baseline
+          #wf -= wf[0] #subtract baseline
           wf += waveforms[j]
           intwaveform = wf.Convert()
           wf = wfd.GetWaveformWithChannelToEdit(j)
@@ -150,7 +150,7 @@ class MainWindow(QtGui.QWidget):
     self.noiseFileWidget.move(0,150)
     self.dig = Digitization()
     self.progress = ProgressWidget(self)
-    self.progress.setGeometry(0,300,400,25)
+    self.progress.setGeometry(0,250,400,25)
 
     self.dig.neventsChanged.connect(self.progress.bar.setMaximum)
     self.dig.eventProcessed.connect(self.progress.bar.setValue)
@@ -171,10 +171,11 @@ class MainWindow(QtGui.QWidget):
 
     self.setGeometry(400,400,400,300)
     self.show()
+    self.progress.hide()
 
   def doAction(self):
-    self.dig.start()
     self.progress.show()
+    self.dig.start()
 
 class ProgressWidget(QtGui.QWidget):
   def __init__(self,parent):
@@ -243,4 +244,4 @@ class NumberWidget(QtGui.QWidget):
     self.numberEdit.setValue(number)
 
 if __name__ == "__main__":
-  cmdline()
+  gui()
