@@ -1,4 +1,4 @@
-import ROOT,sys,random,os
+import ROOT,sys,random,os,objgraph
 from PyQt4 import QtGui, QtCore
 libpath = os.path.abspath('common')
 sys.path.append(libpath)
@@ -84,7 +84,6 @@ class Digitization(QtCore.QThread):
     waveforms = []
     if(self.useRealNoise):
       traceFile = ROOT.TFile(str(self.noiseFilename))
-      traceFile.ls()
       traceTree = traceFile.Get("TraceTree")
       ntraces = traceTree.GetEntries()
       for i in range(ROOT.NCHANNEL_PER_WIREPLANE*ROOT.NWIREPLANE):
@@ -92,6 +91,8 @@ class Digitization(QtCore.QThread):
         traceTree.SetBranchAddress("ch"+str(i),waveforms[i])
 
     for i in range(self.nevents):
+      if i == 500:
+        objgraph.show_most_common_types(limit=20)
       if(self.useRealNoise):
         traceTree.GetEntry(i%ntraces)
       self.eventProcessed.emit(i+1)
@@ -117,13 +118,16 @@ class Digitization(QtCore.QThread):
       wfd.Decompress()
       if self.useRealNoise:
         for j in range(ROOT.NCHANNEL_PER_WIREPLANE*ROOT.NWIREPLANE):
-          wf = wfd.GetWaveformWithChannel(j).Convert()
-          #wf -= wf[0] #subtract baseline
-          wf += waveforms[j]
-          intwaveform = wf.Convert()
+          wf = wfd.GetWaveformWithChannel(j)
+          wfdouble = ROOT.EXODoubleWaveform(wf)
+          wfdouble += waveforms[j]
+          intwaveform = ROOT.EXOIntWaveform(wfdouble)
           wf = wfd.GetWaveformWithChannelToEdit(j)
           wf.Zero()
           wf += intwaveform
+          del wf
+          del wfdouble
+          del intwaveform
       self.toutmodule.ProcessEvent(ED)
       if i==self.nevents-1 or self.abort:
         self.digimodule.EndOfRun(ED)
