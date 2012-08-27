@@ -179,6 +179,7 @@ class MainWindow(QtGui.QWidget):
 
   def doAction(self):
     self.progress.show()
+    self.progress.setDisabled(False)
     self.dig.start()
 
 class ProgressWidget(QtGui.QWidget):
