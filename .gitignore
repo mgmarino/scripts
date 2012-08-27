@@ -1,2 +1,3 @@
 objgraph.py*
 *.pyc
+*.root
