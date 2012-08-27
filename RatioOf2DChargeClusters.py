@@ -1,13 +1,14 @@
 import ROOT,sys
 
-def main(filename,nbins):
+def main(filename,nbins,rng):
   ROOT.gSystem.Load("libEXOUtilities")
   f = ROOT.TFile(filename)
   t = f.Get("tree")
   binstring = str(nbins)
-  hist = ROOT.TH1D("hist","V-wire efficiency",nbins,0,3000)
-  t.Draw("fChargeClusters.fRawEnergy>>hFull("+binstring+",0,3000)","fChargeClusters.fRawEnergy < 3000","goff")
-  t.Draw("fChargeClusters.fRawEnergy>>hGood("+binstring+",0,3000)","fChargeClusters.fRawEnergy < 3000 && fChargeClusters.fAmplitudeInVChannels > 0","goff")
+  hist = ROOT.TH1D("hist","2D reconstruction rate",nbins,0,rng)
+  hist.GetXaxis().SetTitle("Charge cluster energy (keV)")
+  t.Draw("fChargeClusters.fRawEnergy>>hFull("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng),"goff")
+  t.Draw("fChargeClusters.fRawEnergy>>hGood("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && fChargeClusters.fV > -400","goff")
   hFull = ROOT.gDirectory.Get("hFull")
   hGood = ROOT.gDirectory.Get("hGood")
   hFull.Sumw2()
@@ -18,9 +19,13 @@ def main(filename,nbins):
   while not contains(answer,["Y","y","N","n"]):
     answer = raw_input("Do you want to save the histogram? (Y/N)")
   if contains(answer,["Y","y"]):
-    out = raw_input("Please enter filename: ")
-    outfile = ROOT.TFile(out,"RECREATE")
-    hist.Write()
+    Open = False
+    while(not Open):
+      out = raw_input("Please enter filename: ")
+      outfile = ROOT.TFile(out,"UPDATE")
+      Open = not outfile.IsZombie()
+    key = raw_input("Please enter object key: ")
+    hist.Write(key)
 
 def contains(str, set):
   for c in set:
@@ -29,7 +34,7 @@ def contains(str, set):
   return False
 
 if __name__ == "__main__":
-  if len(sys.argv) != 3:
-    print("usage: " + sys.argv[0] + " filename nbins")
+  if len(sys.argv) != 4:
+    print("usage: " + sys.argv[0] + " filename nbins range")
     sys.exit(1)
-  main(sys.argv[1],int(sys.argv[2]))
+  main(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]))
