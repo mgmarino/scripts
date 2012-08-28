@@ -8,7 +8,7 @@ def main(filename,nbins,rng):
   hist = ROOT.TH1D("hist","2D reconstruction rate",nbins,0,rng)
   hist.GetXaxis().SetTitle("Charge cluster energy (keV)")
   t.Draw("fChargeClusters.fRawEnergy>>hFull("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng),"goff")
-  t.Draw("fChargeClusters.fRawEnergy>>hGood("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && fChargeClusters.fV > -400","goff")
+  t.Draw("fChargeClusters.fRawEnergy>>hGood("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && fChargeClusters.fV > -400 && fChargeClusters.fU > -400","goff")
   hFull = ROOT.gDirectory.Get("hFull")
   hGood = ROOT.gDirectory.Get("hGood")
   hFull.Sumw2()
