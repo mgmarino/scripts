@@ -1,5 +1,8 @@
-import ROOT,sys
-from Cluster import Cluster
+import ROOT,sys,os
+path = os.path.abspath('common')
+print(path)
+sys.path.append(path)
+from PCDCluster import Cluster
 
 def main(filename):
   ROOT.gSystem.Load("libEXOROOT")
