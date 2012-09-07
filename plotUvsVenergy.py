@@ -10,9 +10,9 @@ urange = 5000
 vrange = 1400
 
 hist1 = ROOT.TH2D("hist1","hist1",150,0,urange,150,0,vrange)
-hist1.GetXaxis().SetTitle("Total collection energy in event")
-hist1.GetYaxis().SetTitle("Total induction energy in event")
-hist1.SetTitle("TOTAL event energy. Strong ^{228}Th")
+hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
+hist1.GetYaxis().SetTitle("Total gain corrected induction energy in event")
+hist1.SetTitle("TOTAL event energy")
 
 hist2 = ROOT.TH1D("hist2","hist2",400,-1000,1000)
 
@@ -26,9 +26,9 @@ for i in range(t.GetEntries()):
   uenergy = 0.0
   venergy = 0.0
   for j in range(ED.GetNumUWireSignals()):
-    uenergy += ED.GetUWireSignal(j).fRawEnergy
+    uenergy += ED.GetUWireSignal(j).fCorrectedEnergy
   for j in range(ED.GetNumVWireSignals()):
-    venergy += ED.GetVWireSignal(j).fMagnitude
+    venergy += ED.GetVWireSignal(j).fCorrectedMagnitude
   hist1.Fill(uenergy,venergy)
 
 
