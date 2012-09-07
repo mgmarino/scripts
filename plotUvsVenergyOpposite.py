@@ -1,10 +1,13 @@
 import ROOT,sys
 
 def main(filename,detHalf):
+  ROOT.gStyle.SetPalette(1)
+
   ROOT.gSystem.Load("libEXOUtilities")
-  f = ROOT.TFile(filename)
-  t = f.Get("tree")
+  t = ROOT.TChain("tree")
+  t.Add(filename)
   ED = ROOT.EXOEventData()
+  t.SetBranchAddress("EventBranch",ED)
 
   urange = 5000
   vrange = 1400
@@ -34,7 +37,23 @@ def main(filename,detHalf):
   canvas1 = ROOT.TCanvas("canvas1")
   canvas1.SetLogz()
   hist1.Draw("colz")
-  raw_input("hit enter to quit")
+  answer = ""
+  while not contains(answer,["Y","y","N","n"]):
+    answer = raw_input("Do you want to save the histogram? (Y/N): ")
+  if contains(answer,["Y","y"]):
+    Open = False
+    while(not Open):
+      out = raw_input("Please enter filename: ")
+      outfile = ROOT.TFile(out,"UPDATE")
+      Open = not outfile.IsZombie()
+    key = raw_input("Please enter object key: ")
+    hist1.Write(key)
+
+def contains(str, set):
+  for c in set:
+    if c == str:
+      return True
+  return False
 
 
 if __name__ == "__main__":
