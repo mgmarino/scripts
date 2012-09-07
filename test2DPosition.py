@@ -19,7 +19,7 @@ def main(filename):
       pcd = ED.fMonteCarloData.GetPixelatedChargeDeposit(j)
       pcdX = pcd.GetPixelCenter().GetX()
       pcdY = pcd.GetPixelCenter().GetY()
-      mindist = 99999999.
+      mindist = 399.
       for k in range(ncl):
         cc = ED.GetChargeCluster(k)
         dist = sqrt((pcdX - cc.fX)**2 + (pcdY - cc.fY)**2)
