@@ -25,11 +25,19 @@ for i in range(t.GetEntries()):
   t.GetEntry(i)
   uenergy = 0.0
   venergy = 0.0
+  bad = False
   for j in range(ED.GetNumUWireSignals()):
-    uenergy += ED.GetUWireSignal(j).fCorrectedEnergy
+    uws = ED.GetUWireSignal(j)
+    if uws.fTime < 120.:
+      bad = True
+      break
+    uenergy += uws.fCorrectedEnergy
+  if bad:
+    continue
   for j in range(ED.GetNumVWireSignals()):
     venergy += ED.GetVWireSignal(j).fCorrectedMagnitude
-  hist1.Fill(uenergy,venergy)
+  if(uenergy > 0 and venergy > 0)
+    hist1.Fill(uenergy,venergy)
 
 
 canvas1 = ROOT.TCanvas("canvas1")
