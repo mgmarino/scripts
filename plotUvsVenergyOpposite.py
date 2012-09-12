@@ -20,19 +20,24 @@ def main(filename,detHalf):
     t.GetEntry(i)
     uenergy = 0.0
     venergy = 0.0
-    #print("we have "+str(ED.GetNumUWireSignals())+" uws")
+    bad = False
     for j in range(ED.GetNumUWireSignals()):
       uws = ED.GetUWireSignal(j)
-      #print(ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel))
+      if uws.fTime < 120.*1000.:
+        bad = True
+        break
       if ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel) != detHalf:
         continue
       uenergy += uws.fCorrectedEnergy
+    if bad:
+      continue
     for j in range(ED.GetNumVWireSignals()):
       vws = ED.GetVWireSignal(j)
       if ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != detHalf:
         continue
       venergy += vws.fCorrectedMagnitude
-    hist1.Fill(uenergy,venergy)
+    if(uenergy > 0 and venergy > 0):
+      hist1.Fill(uenergy,venergy)
 
   canvas1 = ROOT.TCanvas("canvas1")
   canvas1.SetLogz()
