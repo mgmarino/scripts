@@ -28,7 +28,7 @@ for i in range(t.GetEntries()):
   bad = False
   for j in range(ED.GetNumUWireSignals()):
     uws = ED.GetUWireSignal(j)
-    if uws.fTime < 120.:
+    if uws.fTime < 120.*1000.:
       bad = True
       break
     uenergy += uws.fCorrectedEnergy
@@ -36,7 +36,7 @@ for i in range(t.GetEntries()):
     continue
   for j in range(ED.GetNumVWireSignals()):
     venergy += ED.GetVWireSignal(j).fCorrectedMagnitude
-  if(uenergy > 0 and venergy > 0)
+  if(uenergy > 0 and venergy > 0):
     hist1.Fill(uenergy,venergy)
 
 
