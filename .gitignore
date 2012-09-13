@@ -1,3 +1,5 @@
 objgraph.py*
 *.pyc
 *.root
+*.png
+*.pdf
