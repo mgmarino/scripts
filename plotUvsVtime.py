@@ -6,8 +6,8 @@ def main(filename,detHalf):
   hist = ROOT.TH1D("hist","hist",400,-20,20)
   hist.GetXaxis().SetTitle("U-time - V-time")
 
-  f = ROOT.TFile(sys.argv[1])
-  t = f.Get("tree")
+  t = ROOT.TChain("tree")
+  t.Add(filename)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
 
