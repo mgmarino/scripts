@@ -2,15 +2,18 @@ import ROOT,sys
 
 def main(Zpos):
   ROOT.gSystem.Load("libEXOUtilities")
-  lower = -250
-  upper = 250
-  nbins = upper - lower
-  hist = ROOT.TH2D("hist","hist",nbins,lower,upper,nbins,lower,upper)
-  for x in range(lower,upper):
-    for y in range(lower,upper):
+  lowerx = -250
+  upperx = 250
+  lowery = -250
+  uppery = 250
+  nbinsx = upperx - lowerx
+  nbinsy = uppery - lowery
+  hist = ROOT.TH2D("hist","hist",nbinsx,lowerx,upperx,nbinsy,lowery,uppery)
+  for i,x in enumerate(range(lowerx,upperx)):
+    for j,y in enumerate(range(lowery,uppery)):
       coord = ROOT.EXOCoordinates(ROOT.EXOMiscUtil.kXYCoordinates,x,y,Zpos,0)
       crossing = ROOT.EXOWireCrossing.GetInstance()
-      hist.SetBinContent(x-lower,y-lower,crossing.GetDistanceFromHexagon(coord))
+      hist.SetBinContent(i,j,crossing.GetDistanceFromHexagon(coord))
   hist.Draw("colz")
   raw_input("hit enter to quit")
 
