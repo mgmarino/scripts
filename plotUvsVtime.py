@@ -4,6 +4,7 @@ def main(filename,detHalf):
   ROOT.gSystem.Load("libEXOROOT")
 
   hist = ROOT.TH1D("hist","hist",400,-20,20)
+  hist.GetXaxis().SetTitle("U-time - V-time")
 
   f = ROOT.TFile(sys.argv[1])
   t = f.Get("tree")
