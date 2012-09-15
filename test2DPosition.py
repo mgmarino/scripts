@@ -1,3 +1,10 @@
+#########################################################################
+# 
+# This script calculates the minimum distance of a found charge cluster
+# to a Pixelated charge deposit.
+#
+#########################################################################
+
 import sys,ROOT
 from math import sqrt
 
@@ -15,18 +22,20 @@ def main(filename):
     t.GetEntry(i)
     npcds = ED.fMonteCarloData.GetNumPixelatedChargeDeposits()
     ncl = ED.GetNumChargeClusters()
-    for j in range(npcds):
-      pcd = ED.fMonteCarloData.GetPixelatedChargeDeposit(j)
-      pcdX = pcd.GetPixelCenter().GetX()
-      pcdY = pcd.GetPixelCenter().GetY()
+    for j in range(ncl):
+      cc = ED.GetChargeCluster(j)
       mindist = 399.
-      for k in range(ncl):
-        cc = ED.GetChargeCluster(k)
+      for k in range(npcds):
+        pcd = ED.fMonteCarloData.GetPixelatedChargeDeposit(k)
+        pcdX = pcd.GetPixelCenter().GetX()
+        pcdY = pcd.GetPixelCenter().GetY()
         dist = sqrt((pcdX - cc.fX)**2 + (pcdY - cc.fY)**2)
         if dist < mindist:
           mindist = dist
       histMinDist.Fill(mindist)
-      histDistEnergy.Fill(pcd.fTotalEnergy*1000.,mindist)
+      histDistEnergy.Fill(cc.fRawEnergy,mindist)
+      if mindist > 40:
+        print("Distance in event " + str(ED.fEventNumber) + " missed")
   c1 = ROOT.TCanvas()
   c1.Divide(2)
   c1.cd(1)
