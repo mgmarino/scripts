@@ -133,8 +133,8 @@ class Digitization(QtCore.QThread):
         x = self.maxR
         y = self.maxR
         while x**2 + y**2 > self.maxR**2:
-          x = random.uniform(0.,self.maxR)
-          y = random.uniform(0.,self.maxR)
+          x = random.uniform(-self.maxR,self.maxR)
+          y = random.uniform(-self.maxR,self.maxR)
         z = random.uniform(self.minZ,self.maxZ)
         for gang in range(2*ROOT.NUMBER_APD_CHANNELS_PER_PLANE):
           self.pixel.AddAPDHit(gang,time,energy)
