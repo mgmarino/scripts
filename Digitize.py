@@ -47,7 +47,7 @@ class Digitization(QtCore.QThread):
     self.digimodule = ROOT.EXODigitizeModule()
     self.digimodule.SetAPDNoise(2000.0)
     self.digimodule.SetWireNoise(800.0)
-    self.digimodule.SetUnixTimeOfEvent(1333749913)
+    self.digimodule.SetUnixTimeOfEvent(1348000000)
     self.digimodule.SetDigitizationTime(2048)
 
     self.toutmodule = ROOT.EXOTreeOutputModule()
