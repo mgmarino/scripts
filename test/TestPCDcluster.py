@@ -6,8 +6,8 @@ from PCDCluster import Cluster
 
 def main(filename):
   ROOT.gSystem.Load("libEXOROOT")
-  f = ROOT.TFile(filename)
-  t = f.Get("tree")
+  t = ROOT.TChain("tree")
+  t.Add(filename)
   ED = ROOT.EXOEventData()
   cl = Cluster()
   t.SetBranchAddress("EventBranch",ED)

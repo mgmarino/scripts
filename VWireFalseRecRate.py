@@ -7,8 +7,8 @@ import ROOT,sys
 
 def main(filename):
   ROOT.gSystem.Load("libEXOUtilities")
-  f = ROOT.TFile(filename)
-  t = f.Get("tree")
+  t = ROOT.TChain("tree")
+  t.Add(filename)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
   falsecounter = 0

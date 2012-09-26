@@ -6,8 +6,8 @@ import ROOT,sys
 
 def main(filename,nbins,rng):
   ROOT.gSystem.Load("libEXOUtilities")
-  f = ROOT.TFile(filename)
-  t = f.Get("tree")
+  t = ROOT.TChain("tree")
+  t.Add(filename)
   binstring = str(nbins)
   hist = ROOT.TH1D("hist","V-wire reconstruction efficiency",nbins,0,rng)
   hist.GetXaxis().SetTitle("simulated Energy (keV)")
