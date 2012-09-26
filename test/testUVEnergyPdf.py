@@ -3,7 +3,7 @@ import ROOT,math
 def main():
   ROOT.gSystem.Load("libEXOROOT")
   cluster = ROOT.EXOClusteringModule()
-  nbins = 250
+  nbins = 300
   upperU = nbins*10 
   upperV = nbins*2
   hist = ROOT.TH2D("hist","hist",nbins,0,upperU,nbins,0,upperV)
