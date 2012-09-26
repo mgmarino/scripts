@@ -16,7 +16,10 @@ def main(filename):
   t.SetBranchAddress("EventBranch",ED)
 
   histMinDist = ROOT.TH1D("histMinDist","Distances",400,0,400)
+  histMinDist.GetXaxis().SetTitle("Distance to nearest PCD (mm)")
   histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,4000,200,0,400)
+  histDistEnergy.GetXaxis().SetTitle("Energy")
+  histDistEnergy.GetYaxis().SetTitle("Distance to nearest PCD (mm)")
 
   for i in range(t.GetEntries()):
     t.GetEntry(i)
@@ -34,8 +37,6 @@ def main(filename):
           mindist = dist
       histMinDist.Fill(mindist)
       histDistEnergy.Fill(cc.fRawEnergy,mindist)
-      if mindist > 40:
-        print("Distance in event " + str(ED.fEventNumber) + " missed")
   c1 = ROOT.TCanvas()
   c1.Divide(2)
   c1.cd(1)
