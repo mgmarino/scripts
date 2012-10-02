@@ -19,7 +19,7 @@ def main(filename,detHalf):
         continue
       for k in range(ED.GetNumVWireSignals()):
         vws = ED.GetVWireSignal(k)
-        if detHalf != 2 and ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != detHalf:
+        if ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel):
           continue
         timediff = (uws.fTime - vws.fTime)/1000.
         hist.Fill(timediff)
@@ -34,5 +34,6 @@ if __name__ == "__main__":
     sys.exit(1)
   if len(sys.argv) == 3:
     main(sys.argv[1],int(sys.argv[2]))
-  else main(sys.argv[1],2)
+  else:
+    main(sys.argv[1],2)
 
