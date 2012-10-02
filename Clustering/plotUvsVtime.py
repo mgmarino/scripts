@@ -15,11 +15,11 @@ def main(filename,detHalf):
     t.GetEntry(i)
     for j in range(ED.GetNumUWireSignals()):
       uws = ED.GetUWireSignal(j)
-      if ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel) != detHalf:
+      if detHalf != 2 and ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel) != detHalf:
         continue
       for k in range(ED.GetNumVWireSignals()):
         vws = ED.GetVWireSignal(k)
-        if ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != detHalf:
+        if detHalf != 2 and ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != detHalf:
           continue
         timediff = (uws.fTime - vws.fTime)/1000.
         hist.Fill(timediff)
@@ -29,8 +29,10 @@ def main(filename,detHalf):
   raw_input("hit enter to quit")
 
 if __name__ == "__main__":
-  if len(sys.argv) != 3:
-    print("usage: " + sys.argv[0] + " file detectorHalf")
+  if not (len(sys.argv) in [2,3]):
+    print("usage: " + sys.argv[0] + " file [detectorHalf]")
     sys.exit(1)
-  main(sys.argv[1],int(sys.argv[2]))
+  if len(sys.argv) == 3:
+    main(sys.argv[1],int(sys.argv[2]))
+  else main(sys.argv[1],2)
 
