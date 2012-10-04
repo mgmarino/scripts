@@ -17,7 +17,7 @@ def main(filename):
 
   histMinDist = ROOT.TH1D("histMinDist","Distances",400,0,400)
   histMinDist.GetXaxis().SetTitle("Distance to nearest PCD (mm)")
-  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,4000,200,0,400)
+  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,3000,100,0,100)
   histDistEnergy.GetXaxis().SetTitle("Energy")
   histDistEnergy.GetYaxis().SetTitle("Distance to nearest PCD (mm)")
 
@@ -37,11 +37,15 @@ def main(filename):
           mindist = dist
       histMinDist.Fill(mindist)
       histDistEnergy.Fill(cc.fRawEnergy,mindist)
-  c1 = ROOT.TCanvas()
+  histMinDist.Scale(1./t.GetEntries())
+  histDistEnergy.Scale(1./t.GetEntries())
+  c1 = ROOT.TCanvas("c1","c1",1000,600)
   c1.Divide(2)
-  c1.cd(1)
+  pad1 = c1.cd(1)
+  pad1.SetLogy(True)
   histMinDist.Draw()
-  c1.cd(2)
+  pad2 = c1.cd(2)
+  pad2.SetLogz(True)
   histDistEnergy.Draw("colz")
   raw_input("hit enter to quit")
 
