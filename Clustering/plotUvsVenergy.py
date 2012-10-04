@@ -60,9 +60,9 @@ def main(filename):
   canvas3.Update()
 
   answer = ""
-  while not contains(answer,["Y","y","N","n"]):
+  while not answer in ["Y","y","N","n"]:
     answer = raw_input("Do you want to save the profile? (Y/N): ")
-  if contains(answer,["Y","y"]):
+  if answer in ["Y","y"]:
     Open = False
     while(not Open):
       out = raw_input("Please enter filename: ")

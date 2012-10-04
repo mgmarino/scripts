@@ -43,9 +43,9 @@ def main(filename,detHalf):
   canvas1.SetLogz()
   hist1.Draw("colz")
   answer = ""
-  while not contains(answer,["Y","y","N","n"]):
+  while not answer in ["Y","y","N","n"]:
     answer = raw_input("Do you want to save the histogram? (Y/N): ")
-  if contains(answer,["Y","y"]):
+  if answer in ["Y","y"]:
     Open = False
     while(not Open):
       out = raw_input("Please enter filename: ")
@@ -53,13 +53,6 @@ def main(filename,detHalf):
       Open = not outfile.IsZombie()
     key = raw_input("Please enter object key: ")
     hist1.Write(key)
-
-def contains(str, set):
-  for c in set:
-    if c == str:
-      return True
-  return False
-
 
 if __name__ == "__main__":
   if len(sys.argv) != 3:
