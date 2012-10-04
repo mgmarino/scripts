@@ -59,7 +59,17 @@ def main(filename):
   hist3.Draw()
   canvas3.Update()
 
-  raw_input("hit enter to quit")
+  answer = ""
+  while not contains(answer,["Y","y","N","n"]):
+    answer = raw_input("Do you want to save the profile? (Y/N): ")
+  if contains(answer,["Y","y"]):
+    Open = False
+    while(not Open):
+      out = raw_input("Please enter filename: ")
+      outfile = ROOT.TFile(out,"UPDATE")
+      Open = not outfile.IsZombie()
+    key = raw_input("Please enter object key: ")
+    prof.Write(key)
 
 if __name__ == "__main__":
   if len(sys.argv) != 2:
