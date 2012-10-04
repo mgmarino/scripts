@@ -1,10 +1,10 @@
 import ROOT,sys
 
 def main(filename):
-  ROOT.gSystem.Load("libEXOROOT")
+  ROOT.gSystem.Load("libEXOUtilities")
 
-  urange = 3000
-  vrange = 600
+  urange = 6000
+  vrange = 1200
 
   hist1 = ROOT.TH2D("hist1","hist1",100,0,urange,100,0,vrange)
   hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
@@ -33,6 +33,8 @@ def main(filename):
       venergy += ED.GetVWireSignal(j).fCorrectedMagnitude
     if(uenergy > 0 and venergy > 0):
       hist1.Fill(uenergy,venergy)
+    if(uenergy > 3000) and (venergy < 400):
+      print("(u,v) = ("+str(uenergy)+","+str(venergy)+") in run\\event: "+str(ED.fRunNumber)+"\\"+str(ED.fEventNumber))
 
 
   canvas1 = ROOT.TCanvas("canvas1")
