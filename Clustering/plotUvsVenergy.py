@@ -3,8 +3,8 @@ import ROOT,sys
 def main(filename):
   ROOT.gSystem.Load("libEXOUtilities")
 
-  urange = 6000
-  vrange = 1200
+  urange = 3000
+  vrange = 600
 
   hist1 = ROOT.TH2D("hist1","hist1",100,0,urange,100,0,vrange)
   hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
