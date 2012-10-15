@@ -1,13 +1,14 @@
 import ROOT,sys
 
 def main(filename,detHalf):
-  ROOT.gSystem.Load("libEXOROOT")
+  ROOT.gSystem.Load("libEXOUtilities")
 
   hist = ROOT.TH1D("hist","hist",400,-15,15)
   hist.GetXaxis().SetTitle("U-time - V-time")
-  hist2 = ROOT.TH2D("hist2","",100,-3,130,100,-10,10)
-  hist2.GetXaxis().SetTitle("U-time - Scint-time")
+  hist2 = ROOT.TH2D("hist2","",50,160,210,100,-10,10)
+  hist2.GetXaxis().SetTitle("Z")
   hist2.GetYaxis().SetTitle("U-time - V-time")
+
 
   t = ROOT.TChain("tree")
   t.Add(filename)
@@ -26,6 +27,8 @@ def main(filename,detHalf):
     nvws = ED.GetNumVWireSignals()
     uws = ED.GetUWireSignal(0)
     timeToScint = (uws.fTime - sc.fTime)/1000.
+    driftDist = 1.71 * timeToScint
+    zpos = (ROOT.CATHODE_APDFACE_DISTANCE - ROOT.APDPLANE_UPLANE_DISTANCE) - driftDist
     if detHalf != 2 and ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel) != detHalf:
       continue
     #if timeToScint < 10:
@@ -41,13 +44,25 @@ def main(filename,detHalf):
         maxSigTimeDiff = (uws.fTime - vws.fTime)/1000.
     if maxSigEnergy > 0:
       hist.Fill(maxSigTimeDiff)
-      hist2.Fill(timeToScint,maxSigTimeDiff)
+      hist2.Fill(zpos,maxSigTimeDiff)
 
   canvas1 = ROOT.TCanvas("canvas1")
   hist.Draw()
   canvas2 = ROOT.TCanvas("canvas2")
   canvas2.SetLogz()
   hist2.Draw("colz")
+  canvas3 = ROOT.TCanvas("canvas3")
+  prof = hist2.ProfileX()
+  prof.Draw()
+  canvas4 = ROOT.TCanvas("canvas4")
+  histSigmas = hist2.ProjectionX()
+  histSigmas.SetName("histSigmas")
+  histSigmas.SetTitle("Sigma")
+  for i in range(1,hist2.GetNbinsX()+1):
+    proj = hist2.ProjectionY("proj",i,i)
+    histSigmas.SetBinContent(i,proj.GetRMS())
+  histSigmas.Draw()
+
   raw_input("hit enter to quit")
 
 if __name__ == "__main__":
