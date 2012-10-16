@@ -17,7 +17,7 @@ def main(filename):
 
   histMinDist = ROOT.TH1D("histMinDist","Distances",400,0,400)
   histMinDist.GetXaxis().SetTitle("Distance to nearest PCD (mm)")
-  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,3000,100,0,100)
+  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,2000,100,0,200)
   histDistEnergy.GetXaxis().SetTitle("Energy")
   histDistEnergy.GetYaxis().SetTitle("Distance to nearest PCD (mm)")
 
