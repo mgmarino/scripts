@@ -33,6 +33,8 @@ def main(filename):
   histGoodmsGoodZHighClusterEnergy.GetXaxis().SetTitle("Purity corrected charge energy")
   histGoodmsGoodZSingleClusters = ROOT.TH1D("histGoodmsGoodZSingleClusters","Single charge cluster MS spectrum",100,0,3000)
   histGoodmsGoodZSingleClusters.GetXaxis().SetTitle("Purity corrected charge energy")
+  histMsSumAllGoodClusters = ROOT.TH1D("histMsSumAllGoodClusters","Sum energy of all 2D-reconstructed MS clusters",100,0,3000)
+  histMsSumAllGoodClusters.GetXaxis().SetTitle("Purity corrected charge energy")
   histGoodmsBadZ = ROOT.TH1D("histGoodmsBadZ","Multi site inside hexagon |Z| > 185",100,0,3000)
   histGoodmsBadZ.GetXaxis().SetTitle("Purity corrected charge energy")
 
@@ -53,6 +55,7 @@ def main(filename):
     sc = ED.GetScintillationCluster(0)
     ncl = sc.GetNumChargeClusters()
     energy = 0.0
+    energy2D = 0.0
     Venergy = 0.0
     bad = False
     badZ = False
@@ -69,6 +72,7 @@ def main(filename):
         bad = True
         histBadZ.Fill(cc.fZ)
       else:
+        energy2D += cc.fPurityCorrectedEnergy
         histGoodZ.Fill(cc.fZ)
       Venergy += cc.fAmplitudeInVChannels
       energy += cc.fPurityCorrectedEnergy
@@ -87,6 +91,7 @@ def main(filename):
         else:
           histGoodssGoodZ.Fill(energy)
     elif ncl > 1:
+      histMsSumAllGoodClusters.Fill(energy2D)
       if bad:
         histBadms.Fill(energy)
       else:
@@ -114,6 +119,7 @@ def main(filename):
   histGoodmsGoodZ.Write("hGoodMSGoodZ")
   histGoodmsGoodZHighClusterEnergy.Write("hGoodMSGoodZHighClusterEnergy")
   histGoodmsGoodZSingleClusters.Write("hGoodMSGoodZSingleCluster")
+  histMsSumAllGoodClusters.Write("hMsSumAllGoodClusters")
   histGoodmsBadZ.Write("hGoodMSBadZ")
 
 if __name__ == "__main__":
