@@ -8,6 +8,9 @@ def main(filename,detHalf):
   hist2 = ROOT.TH2D("hist2","",50,160,210,100,-10,10)
   hist2.GetXaxis().SetTitle("Z")
   hist2.GetYaxis().SetTitle("U-time - V-time")
+  hist3 = ROOT.TH2D("hist3","",100,0,3000,100,-10,10)
+  hist3.GetXaxis().SetTitle("Energy")
+  hist3.GetYaxis().SetTitle("U-time - V-time")
 
 
   t = ROOT.TChain("tree")
@@ -45,6 +48,7 @@ def main(filename,detHalf):
     if maxSigEnergy > 0:
       hist.Fill(maxSigTimeDiff)
       hist2.Fill(zpos,maxSigTimeDiff)
+      hist3.Fill(uws.fCorrectedEnergy,maxSigTimeDiff)
 
   canvas1 = ROOT.TCanvas("canvas1")
   hist.Draw()
@@ -62,6 +66,8 @@ def main(filename,detHalf):
     proj = hist2.ProjectionY("proj",i,i)
     histSigmas.SetBinContent(i,proj.GetRMS())
   histSigmas.Draw()
+  canvas5 = ROOT.TCanvas("canvas5")
+  hist3.Draw("colz")
 
   raw_input("hit enter to quit")
 
