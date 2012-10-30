@@ -12,7 +12,7 @@ def main(filename,nbins,rng,zCut):
   t.Draw("fChargeClusters.fRawEnergy>>hFull("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && abs(fChargeClusters.fZ) < "+str(zCut),"goff")
   t.Draw("fChargeClusters.fRawEnergy>>hGood("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && abs(fChargeClusters.fX) < 172 && abs(fChargeClusters.fZ) < "+str(zCut),"goff")
   t.Draw("fChargeClusters.fRawEnergy>>hFullSS("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && abs(fChargeClusters.fZ) < "+str(zCut)+" && @fChargeClusters.size() == 1","goff")
-  t.Draw("fChargeClusters.fRawEnergy>>hGoodSS("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && abs(fChargeClusters.fX) >= 172 && abs(fChargeClusters.fZ) < "+str(zCut)+" && @fChargeClusters.size() == 1","goff")
+  t.Draw("fChargeClusters.fRawEnergy>>hGoodSS("+binstring+",0,"+str(rng)+")","fChargeClusters.fRawEnergy < "+str(rng)+" && abs(fChargeClusters.fX) < 172 && abs(fChargeClusters.fZ) < "+str(zCut)+" && @fChargeClusters.size() == 1","goff")
   hFull = ROOT.gDirectory.Get("hFull")
   hGood = ROOT.gDirectory.Get("hGood")
   hFullSS = ROOT.gDirectory.Get("hFullSS")
