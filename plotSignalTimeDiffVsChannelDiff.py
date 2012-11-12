@@ -1,9 +1,10 @@
 import ROOT,sys
 
-def main(filename):
+def main(files):
   ROOT.gSystem.Load("libEXOUtilities")
   t = ROOT.TChain("tree")
-  t.Add(filename)
+  for f in files:
+    t.Add(f)
 
   hU = ROOT.TH2D("hU","hU",5,-2,3,100,-10,10)
   hV = ROOT.TH2D("hV","hV",9,-4,5,100,-20,20)
@@ -68,7 +69,7 @@ def main(filename):
   raw_input("enter to quit")
 
 if __name__ == "__main__":
-  if len(sys.argv) != 2:
-    print("usage: " + sys.argv[0] + " filename")
+  if len(sys.argv) < 2:
+    print("usage: " + sys.argv[0] + " file(s)")
     sys.exit(1)
-  main(sys.argv[1])
+  main(sys.argv[1:])

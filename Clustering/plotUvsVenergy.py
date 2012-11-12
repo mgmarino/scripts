@@ -1,10 +1,13 @@
 import ROOT,sys
 
-def main(filename):
+uedge = [0,37,76,113]
+vedge = [38,75,114,151]
+
+def main(filenames):
   ROOT.gSystem.Load("libEXOUtilities")
 
   urange = 3000
-  vrange = 600
+  vrange = 900
 
   hist1 = ROOT.TH2D("hist1","hist1",100,0,urange,100,0,vrange)
   hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
@@ -12,30 +15,44 @@ def main(filename):
   hist1.SetTitle("TOTAL event energy")
 
   t = ROOT.TChain("tree")
-  t.Add(filename)
+  for file in filenames:
+    t.Add(file)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
 
   for i in range(t.GetEntries()):
     t.GetEntry(i)
+    nsc = ED.GetNumScintillationClusters()
+    if nsc != 1:
+      continue
+    sc = ED.GetScintillationCluster(0)
+    nuws = ED.GetNumUWireSignals()
+    nvws = ED.GetNumVWireSignals()
     uenergy = 0.0
     venergy = 0.0
     bad = False
     for j in range(ED.GetNumUWireSignals()):
       uws = ED.GetUWireSignal(j)
-      if uws.fTime < 120.*1000.:
+      if uws.fChannel in uedge:
+        bad = True
+        break
+      driftDist = 1.71 * (uws.fTime - sc.fTime)/1000.
+      Z = ROOT.CATHODE_APDFACE_DISTANCE - ROOT.APDPLANE_UPLANE_DISTANCE - driftDist
+      if abs(Z) > 160:
         bad = True
         break
       uenergy += uws.fCorrectedEnergy
     if bad:
       continue
     for j in range(ED.GetNumVWireSignals()):
-      venergy += ED.GetVWireSignal(j).fCorrectedMagnitude
-    if(uenergy > 0 and venergy > 0):
-      hist1.Fill(uenergy,venergy)
-    if(uenergy > 3000) and (venergy < 400):
-      print("(u,v) = ("+str(uenergy)+","+str(venergy)+") in run\\event: "+str(ED.fRunNumber)+"\\"+str(ED.fEventNumber))
-
+      vws = ED.GetVWireSignal(j)
+      if vws.fChannel in vedge:
+        bad = True
+        break
+      venergy += vws.fCorrectedMagnitude
+    if bad:
+      continue
+    hist1.Fill(uenergy,venergy)
 
   canvas1 = ROOT.TCanvas("canvas1")
   canvas1.SetLogz()
@@ -72,8 +89,8 @@ def main(filename):
     prof.Write(key)
 
 if __name__ == "__main__":
-  if len(sys.argv) != 2:
-    print("usage: " + sys.argv[0] + " file")
+  if len(sys.argv) < 2:
+    print("usage: " + sys.argv[0] + " file(s)")
     sys.exit(1)
-  main(sys.argv[1])
+  main(sys.argv[1:])
 
