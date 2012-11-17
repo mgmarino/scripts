@@ -24,7 +24,7 @@ def main(filename):
   t.SetBranchAddress("EventBranch",ED)
   for i in range(t.GetEntries()):
     t.GetEntry(i)
-    nclWithEnergy = len(filter(lambda energy: energy>0, [ED.GetChargeCluster(j).fPurityCorrectedEnergy for j in range(ED.GetNumChargeClusters())]))
+    nclWithEnergy = len(filter(lambda energy: energy>0, [ED.GetChargeCluster(j).fRawEnergy for j in range(ED.GetNumChargeClusters())]))
     histWithEnergy.Fill(nclWithEnergy)
   histWithEnergy.Draw()
   answer = ""
