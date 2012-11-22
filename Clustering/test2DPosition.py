@@ -8,10 +8,11 @@
 import sys,ROOT
 from math import sqrt
 
-def main(filename):
+def main(files):
   ROOT.gSystem.Load("libEXOUtilities")
   t = ROOT.TChain("tree")
-  t.Add(filename)
+  for f in files:
+    t.Add(f)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
 
@@ -51,7 +52,7 @@ def main(filename):
 
 
 if __name__ == "__main__":
-  if len(sys.argv) != 2:
-    print("usage: " + sys.argv[0] + " filename")
+  if len(sys.argv) < 2:
+    print("usage: " + sys.argv[0] + " file(s)")
     sys.exit(1)
-  main(sys.argv[1])
+  main(sys.argv[1:])
