@@ -56,14 +56,27 @@ def main(filenames):
   hist14 = ROOT.TH1D("hist14","Time diff to nearest U-cluster",400,-20,20)
   hist14.GetXaxis().SetTitle("time")
 
+  hist15 = ROOT.TH2D("hist15","X Y position of unclustered clusters",100,-300,300,100,-200,200)
+  hist15.GetXaxis().SetTitle("X")
+  hist15.GetYaxis().SetTitle("Y")
+  
+  hist16 = ROOT.TH2D("hist16","Energy of unclustered clusters at detector edge",100,0,3000,100,0,800)
+  hist16.GetXaxis().SetTitle("Deposition Energy")
+  hist16.GetYaxis().SetTitle("Induction Energy")
+
+  hist17 = ROOT.TH1D("hist17","U-position of unclustered clusters",800,-200,200)
+  hist17.GetXaxis().SetTitle("U (mm)")
+  
+  hist18 = ROOT.TH1D("hist18","V-position of unclustered clusters",800,-200,200)
+  hist18.GetXaxis().SetTitle("V (mm)")
+  
   t = ROOT.TChain("tree")
   for f in filenames:
     t.Add(f)
-  ED = ROOT.EXOEventData()
-  t.SetBranchAddress("EventBranch",ED)
 
   for i in range(t.GetEntries()):
     t.GetEntry(i)
+    ED = t.EventBranch
     maxE = 0
     UonlyClusters = []
     VonlyClusters = []
@@ -79,11 +92,13 @@ def main(filenames):
           largestCC = cc
 
     for vc in VonlyClusters:
-        if(largestCC):
-          timediff = (largestCC.fCollectionTime - vc.fCollectionTime) / 1000
-          hist7.Fill(timediff)
+      hist18.Fill(vc.fV)
+      if(largestCC):
+        timediff = (largestCC.fCollectionTime - vc.fCollectionTime) / 1000
+        hist7.Fill(timediff)
 
     for uc in UonlyClusters:
+      hist17.Fill(uc.fU)
       mindiff = 1000000.
       for j in range(ED.GetNumChargeClusters()):
         other = ED.GetChargeCluster(j)
@@ -120,6 +135,10 @@ def main(filenames):
           hist12.Fill(uc.fCorrectedEnergy,vc.fCorrectedAmplitudeInVChannels)
         elif timediff > 1.6 and timediff < 3.5:
           hist13.Fill(uc.fCorrectedEnergy,vc.fCorrectedAmplitudeInVChannels)
+        coord = ROOT.EXOCoordinates(ROOT.EXOMiscUtil.kUVCoordinates,uc.fU,vc.fV,uc.fZ,uc.fCollectionTime)
+        hist15.Fill(coord.GetX(),coord.GetY())
+        if abs(uc.fU) > 165 or abs(vc.fV) > 165:
+          hist16.Fill(uc.fCorrectedEnergy,vc.fCorrectedAmplitudeInVChannels)
 
   canvas1 = ROOT.TCanvas("canvas1")
   hist.Draw()
@@ -149,6 +168,14 @@ def main(filenames):
   hist13.Draw("colz")
   canvas14 = ROOT.TCanvas("canvas14")
   hist14.Draw()
+  canvas15 = ROOT.TCanvas("canvas15")
+  hist15.Draw("colz")
+  canvas16 = ROOT.TCanvas("canvas16")
+  hist16.Draw("colz")
+  canvas17 = ROOT.TCanvas("canvas17")
+  hist17.Draw()
+  canvas18 = ROOT.TCanvas("canvas18")
+  hist18.Draw()
   answer = ""
   while answer not in (["Y","y","N","n"]):
     answer = raw_input(str(len(selection))+"/"+str(t.GetEntries())+" events selected. Do you want to save the selected events? (Y/N) ")
