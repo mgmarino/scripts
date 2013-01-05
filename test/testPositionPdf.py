@@ -16,7 +16,8 @@ def main():
   for i,x in enumerate(range(lowerx,upperx)):
     for j,y in enumerate(range(lowery,uppery)):
       coord = ROOT.EXOCoordinates(ROOT.EXOMiscUtil.kXYCoordinates,x,y,100.0,0.0)
-      val = math.exp(-cluster.positionNLPdf(coord.GetU(),coord.GetV()))
+      #val = math.exp(-cluster.positionNLPdf(coord.GetU(),coord.GetV()))
+      val = cluster.positionNLPdf(coord.GetU(),coord.GetV())
       hist.SetBinContent(i,j,val)
   c1 = ROOT.TCanvas()
   hist.Draw("colz")
