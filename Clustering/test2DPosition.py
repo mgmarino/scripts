@@ -8,7 +8,7 @@
 import sys,ROOT
 from math import sqrt
 
-def main(files):
+def main(zCut, files):
   ROOT.gSystem.Load("libEXOUtilities")
   t = ROOT.TChain("tree")
   for f in files:
@@ -18,7 +18,7 @@ def main(files):
 
   histMinDist = ROOT.TH1D("histMinDist","Distances",400,0,400)
   histMinDist.GetXaxis().SetTitle("Distance to nearest PCD (mm)")
-  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,2000,100,0,200)
+  histDistEnergy = ROOT.TH2D("histDistEnergy","Distances vs Energy",100,0,3000,100,0,100)
   histDistEnergy.GetXaxis().SetTitle("Energy")
   histDistEnergy.GetYaxis().SetTitle("Distance to nearest PCD (mm)")
 
@@ -28,6 +28,8 @@ def main(files):
     ncl = ED.GetNumChargeClusters()
     for j in range(ncl):
       cc = ED.GetChargeCluster(j)
+      if abs(cc.fZ) > zCut:
+        continue
       mindist = 399.
       for k in range(npcds):
         pcd = ED.fMonteCarloData.GetPixelatedChargeDeposit(k)
@@ -52,7 +54,7 @@ def main(files):
 
 
 if __name__ == "__main__":
-  if len(sys.argv) < 2:
-    print("usage: " + sys.argv[0] + " file(s)")
+  if len(sys.argv) < 3:
+    print("usage: " + sys.argv[0] + " zCut file(s)")
     sys.exit(1)
-  main(sys.argv[1:])
+  main(float(sys.argv[1]), sys.argv[2:])
