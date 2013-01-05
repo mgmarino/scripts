@@ -6,8 +6,8 @@ vedge = [38,75,114,151]
 def main(filenames):
   ROOT.gSystem.Load("libEXOUtilities")
 
-  urange = 3000
-  vrange = 900
+  urange = 5000
+  vrange = 1400
 
   hist1 = ROOT.TH2D("hist1","hist1",100,0,urange,100,0,vrange)
   hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
