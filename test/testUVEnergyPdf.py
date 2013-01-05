@@ -5,12 +5,12 @@ def main():
   cluster = ROOT.EXOClusteringModule()
   nbins = 300
   upperU = nbins*10 
-  upperV = nbins*2
+  upperV = nbins*3
   hist = ROOT.TH2D("hist","hist",nbins,0,upperU,nbins,0,upperV)
   for j,v in enumerate(range(0,upperV,upperV/nbins)):
     for i,u in enumerate(range(0,upperU,upperU/nbins)):
-      val = math.exp(-cluster.energyNLPdf(u,v,0))
-      #val = cluster.energyNLPdf(u,v)
+      #val = math.exp(-cluster.energyNLPdf(u,v,0))
+      val = cluster.energyNLPdf(u,v,0)
       hist.SetBinContent(i,j,val)
   c1 = ROOT.TCanvas()
   hist.Draw("colz")
