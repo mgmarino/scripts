@@ -1,20 +1,23 @@
 import ROOT,sys
 
-def main(filename,detHalf):
+def main(files,detHalf):
   ROOT.gSystem.Load("libEXOUtilities")
 
   hist = ROOT.TH1D("hist","hist",400,-15,15)
   hist.GetXaxis().SetTitle("U-time - V-time")
-  hist2 = ROOT.TH2D("hist2","",50,160,210,100,-10,10)
+  hist2 = ROOT.TH2D("hist2","",100,0,200,100,-10,10)
   hist2.GetXaxis().SetTitle("Z")
   hist2.GetYaxis().SetTitle("U-time - V-time")
   hist3 = ROOT.TH2D("hist3","",100,0,3000,100,-10,10)
   hist3.GetXaxis().SetTitle("Energy")
   hist3.GetYaxis().SetTitle("U-time - V-time")
+  hist4 = ROOT.TH1D("hist4","hist4",400,-15,15)
+  hist4.GetXaxis().SetTitle("U-time - V-time")
 
 
   t = ROOT.TChain("tree")
-  t.Add(filename)
+  for f in files:
+    t.Add(f)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
 
@@ -42,6 +45,8 @@ def main(filename,detHalf):
       vws = ED.GetVWireSignal(j)
       if ROOT.EXOMiscUtil.GetTPCSide(vws.fChannel) != ROOT.EXOMiscUtil.GetTPCSide(uws.fChannel):
         continue
+      if vws.fCorrectedMagnitude > 0:
+        hist4.Fill((uws.fTime - vws.fTime)/1000.)
       if vws.fCorrectedMagnitude > maxSigEnergy:
         maxSigEnergy = vws.fCorrectedMagnitude
         maxSigTimeDiff = (uws.fTime - vws.fTime)/1000.
@@ -68,15 +73,15 @@ def main(filename,detHalf):
   histSigmas.Draw()
   canvas5 = ROOT.TCanvas("canvas5")
   hist3.Draw("colz")
+  canvas6 = ROOT.TCanvas("canvas6")
+  hist4.Draw()
 
   raw_input("hit enter to quit")
 
 if __name__ == "__main__":
-  if not (len(sys.argv) in [2,3]):
-    print("usage: " + sys.argv[0] + " file [detectorHalf]")
+  if len(sys.argv) < 3:
+    print("usage: " + sys.argv[0] + " detectorHalf file[s]")
+    print("set detectorHalf=2 to use whole detector")
     sys.exit(1)
-  if len(sys.argv) == 3:
-    main(sys.argv[1],int(sys.argv[2]))
-  else:
-    main(sys.argv[1],2)
+  main(sys.argv[2:],int(sys.argv[1]))
 

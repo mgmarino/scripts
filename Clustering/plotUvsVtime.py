@@ -1,6 +1,6 @@
 import ROOT,sys
 
-def main(filename,detHalf):
+def main(files,detHalf):
   ROOT.gSystem.Load("libEXOROOT")
 
   hist = ROOT.TH1D("hist","hist",400,-20,20)
@@ -11,12 +11,17 @@ def main(filename,detHalf):
   hist2.GetYaxis().SetTitle("U-time - V-time")
 
   t = ROOT.TChain("tree")
-  t.Add(filename)
+  for f in files:
+    t.Add(f)
   ED = ROOT.EXOEventData()
   t.SetBranchAddress("EventBranch",ED)
 
   for i in range(t.GetEntries()):
     t.GetEntry(i)
+    nsc = ED.GetNumScintillationClusters()
+    if nsc != 1:
+      continue
+    sc = ED.GetScintillationCluster(0)
     for j in range(ED.GetNumUWireSignals()):
       uws = ED.GetUWireSignal(j)
       timeToScint = (uws.fTime - sc.fTime)/1000.
@@ -42,11 +47,8 @@ def main(filename,detHalf):
   raw_input("hit enter to quit")
 
 if __name__ == "__main__":
-  if not (len(sys.argv) in [2,3]):
-    print("usage: " + sys.argv[0] + " file [detectorHalf]")
+  if len(sys.argv) < 3:
+    print("usage: " + sys.argv[0] + " detectorHalf file[s]")
+    print("set detectorHalf=2 to use whole detector")
     sys.exit(1)
-  if len(sys.argv) == 3:
-    main(sys.argv[1],int(sys.argv[2]))
-  else:
-    main(sys.argv[1],2)
-
+  main(sys.argv[2:],int(sys.argv[1]))

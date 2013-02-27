@@ -1,13 +1,10 @@
 import ROOT,sys
 
-uedge = [0,37,76,113]
-vedge = [38,75,114,151]
-
 def main(filenames):
   ROOT.gSystem.Load("libEXOUtilities")
 
-  urange = 5000
-  vrange = 1400
+  urange = 3000
+  vrange = 900
 
   hist1 = ROOT.TH2D("hist1","hist1",100,0,urange,100,0,vrange)
   hist1.GetXaxis().SetTitle("Total gain corrected collection energy in event")
@@ -33,12 +30,12 @@ def main(filenames):
     bad = False
     for j in range(ED.GetNumUWireSignals()):
       uws = ED.GetUWireSignal(j)
-      if uws.fChannel in uedge:
+      if uws.fTime < 120000.:
         bad = True
         break
       driftDist = 1.71 * (uws.fTime - sc.fTime)/1000.
       Z = ROOT.CATHODE_APDFACE_DISTANCE - ROOT.APDPLANE_UPLANE_DISTANCE - driftDist
-      if abs(Z) > 160:
+      if abs(Z) > 180:
         bad = True
         break
       uenergy += uws.fCorrectedEnergy
@@ -46,12 +43,7 @@ def main(filenames):
       continue
     for j in range(ED.GetNumVWireSignals()):
       vws = ED.GetVWireSignal(j)
-      if vws.fChannel in vedge:
-        bad = True
-        break
       venergy += vws.fCorrectedMagnitude
-    if bad:
-      continue
     hist1.Fill(uenergy,venergy)
 
   canvas1 = ROOT.TCanvas("canvas1")
