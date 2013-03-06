@@ -11,27 +11,23 @@ from math import sqrt
 from array import array
 
 def FillTree(intree):
-  U = array('d',[0])
-  V = array('d',[0])
-  X = array('d',[0])
-  Y = array('d',[0])
-  Z = array('d',[0])
-  pcdEnergy = array('d',[0])
-  nearestCCEnergy = array('d',[0])
   dU = array('d',[0])
   dV = array('d',[0])
+  dX = array('d',[0])
+  dY = array('d',[0])
   dZ = array('d',[0])
+  dR = array('d',[0])
+  dD = array('d',[0])
   outTree = ROOT.TTree("AccuracyTree","AccuracyTree")
-  outTree.Branch("U",U,"U/D")
-  outTree.Branch("V",V,"V/D")
-  outTree.Branch("X",X,"X/D")
-  outTree.Branch("Y",Y,"Y/D")
-  outTree.Branch("Z",Z,"Z/D")
-  outTree.Branch("pcdEnergy",pcdEnergy,"pcdEnergy/D")
-  outTree.Branch("nearestCCEnergy",nearestCCEnergy,"nearestCCEnergy/D")
+  outTree.Branch("CC",ROOT.EXOChargeCluster())
+  outTree.Branch("nearestPCD",ROOT.EXOMCPixelatedChargeDeposit())
   outTree.Branch("dU",dU,"dU/D")
   outTree.Branch("dV",dV,"dV/D")
+  outTree.Branch("dX",dX,"dX/D")
+  outTree.Branch("dY",dY,"dY/D")
   outTree.Branch("dZ",dZ,"dZ/D")
+  outTree.Branch("dR",dR,"dR/D")
+  outTree.Branch("dD",dD,"dD/D")
 
   ED = ROOT.EXOEventData()
   intree.SetBranchAddress("EventBranch",ED)
@@ -39,31 +35,34 @@ def FillTree(intree):
     intree.GetEntry(i)
     ncc = ED.GetNumChargeClusters()
     npcd = ED.fMonteCarloData.GetNumPixelatedChargeDeposits()
-    for pcd in ED.fMonteCarloData.GetPixelatedChargeDepositsArray():
-      nearestCC = None
+    for cc in ED.GetChargeClusterArray():
+      nearestPCD = None
       nearestDist = 999999.
-      for cc in ED.GetChargeClusterArray():
+      for pcd in ED.fMonteCarloData.GetPixelatedChargeDepositsArray():
         distance = Get3DDistance(cc,pcd)
         if distance < nearestDist:
           nearestDist = distance
-          nearestCC = cc
-      pixel = pcd.GetPixelCenter()
-      U[0] = pixel.GetU()
-      V[0] = pixel.GetV()
-      X[0] = pixel.GetX()
-      Y[0] = pixel.GetY()
-      Z[0] = pixel.GetZ()
-      pcdEnergy[0] = pcd.fTotalEnergy*1000
-      if nearestCC:
-        nearestCCEnergy[0] = nearestCC.fRawEnergy
-        dU[0] = nearestCC.fU - U[0]
-        dV[0] = nearestCC.fV - V[0]
-        dZ[0] = nearestCC.fZ - Z[0]
+          nearestPCD = pcd 
+      if nearestPCD:
+        pixel = nearestPCD.GetPixelCenter()
+        dU[0] = cc.fU - pixel.GetU()
+        dV[0] = cc.fV - pixel.GetV()
+        dX[0] = cc.fX - pixel.GetX()
+        dY[0] = cc.fY - pixel.GetY()
+        dZ[0] = cc.fZ - pixel.GetZ()
+        dR[0] = sqrt(dX[0]**2 + dY[0]**2)
+        dD[0] = nearestDist
       else:
-        nearestCCEnergy[0] = -999
+        nearestPCD = ROOT.EXOMCPixelatedChargeDeposit()
         dU[0] = 999
         dV[0] = 999
+        dX[0] = 999
+        dY[0] = 999
         dZ[0] = 999
+        dR[0] = 999
+        dD[0] = 999
+      outTree.SetBranchAddress("CC",cc)
+      outTree.SetBranchAddress("nearestPCD",nearestPCD)
       outTree.Fill()
 
   return outTree
