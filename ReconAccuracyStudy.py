@@ -20,6 +20,7 @@ def FillTree(intree):
   dZ = array('d',[0])
   dR = array('d',[0])
   dD = array('d',[0])
+  NCL = array('i',[0])
   outTree = ROOT.TTree("AccuracyTree","AccuracyTree")
   outTree.Branch("CC",ROOT.EXOChargeCluster())
   outTree.Branch("nearestPCD",ROOT.EXOMCPixelatedChargeDeposit())
@@ -34,12 +35,14 @@ def FillTree(intree):
   outTree.Branch("dZ",dZ,"dZ/D")
   outTree.Branch("dR",dR,"dR/D")
   outTree.Branch("dD",dD,"dD/D")
+  outTree.Branch("NCL",NCL,"NCL/I")
 
   ED = ROOT.EXOEventData()
   intree.SetBranchAddress("EventBranch",ED)
   for i in range(intree.GetEntries()):
     intree.GetEntry(i)
     ncc = ED.GetNumChargeClusters()
+    NCL[0] = ncc
     npcd = ED.fMonteCarloData.GetNumPixelatedChargeDeposits()
     for cc in ED.GetChargeClusterArray():
       nearestPCD = None
@@ -71,13 +74,13 @@ def FillTree(intree):
       nearestUPCD = None
       nearestUDist = 999999.
       for pcd in ED.fMonteCarloData.GetPixelatedChargeDepositsArray():
-        pixel = pcd.GetPixelCenter()
-        distance = cc.fU - pixel.GetU()
-        if abs(distance) < abs(nearestUDist):
+        distance = GetUZDistance(cc,pcd)
+        if distance < nearestUDist:
           nearestUDist = distance
           nearestUPCD = pcd 
       if nearestUPCD:
-        dU[0] = nearestUDist
+        pixel = nearestUPCD.GetPixelCenter()
+        dU[0] = cc.fU - pixel.GetU() 
       else:
         nearestUPCD = ROOT.EXOMCPixelatedChargeDeposit()
         dU[0] = 999
@@ -85,13 +88,13 @@ def FillTree(intree):
       nearestVPCD = None
       nearestVDist = 999999.
       for pcd in ED.fMonteCarloData.GetPixelatedChargeDepositsArray():
-        pixel = pcd.GetPixelCenter()
-        distance = cc.fV - pixel.GetV()
-        if abs(distance) < abs(nearestVDist):
+        distance = GetVZDistance(cc,pcd)
+        if distance < nearestVDist:
           nearestVDist = distance
           nearestVPCD = pcd 
       if nearestVPCD:
-        dV[0] = nearestVDist
+        pixel = nearestVPCD.GetPixelCenter()
+        dV[0] = cc.fV - pixel.GetV()
       else:
         nearestVPCD = ROOT.EXOMCPixelatedChargeDeposit()
         dV[0] = 999
@@ -110,6 +113,18 @@ def Get3DDistance(cc,pcd):
   dY = cc.fY - pixel.GetY()
   dZ = cc.fZ - pixel.GetZ()
   return sqrt(dX**2 + dY**2 + dZ**2)
+
+def GetUZDistance(cc,pcd):
+  pixel = pcd.GetPixelCenter()
+  dU = cc.fU - pixel.GetU()
+  dZ = cc.fZ - pixel.GetZ()
+  return sqrt(dU**2 + dZ**2)
+
+def GetVZDistance(cc,pcd):
+  pixel = pcd.GetPixelCenter()
+  dV = cc.fV - pixel.GetV()
+  dZ = cc.fZ - pixel.GetZ()
+  return sqrt(dV**2 + dZ**2)
 
 if __name__ == "__main__":
   if len(sys.argv) < 3:
