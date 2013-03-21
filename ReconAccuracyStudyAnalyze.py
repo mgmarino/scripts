@@ -1,53 +1,44 @@
 import ROOT,sys,random
 from math import sqrt,pi,cos,sin
 
-def main(tree,hist):
+def main(tree):
   dX = ROOT.RooRealVar("dX","dX",-200,200)
+  dY = ROOT.RooRealVar("dY","dY",-200,200)
   dX.setBins(400)
-  frame = dX.frame()
-  print("Creating right pdf")
-  rightPdf,rightHist = CreateXrightCombinationPdf(tree,dX)
-  print("Creating faulty pdf")
-  #faultyPdf,faultyHist = CreateXfaultyCombinationPdf(1000000,dX,30.)
-  faultyPdf,faultyHist = CreateHistogramPdf(hist,"faulty",dX)
-  rightPdf.plotOn(frame)
-  faultyPdf.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed))
-  frame.Draw()
-  raw_input("c")
-  data = CreateXdataSet(tree,dX)
+  dY.setBins(400)
+  frameX = dX.frame()
+  frameY = dY.frame()
+  print("Creating dataset")
+  data = CreateXYdataSet(tree,dX,dY)
   data.Print()
+  print("Creating right pdf")
+  rightHist = CreateXYrightCombinationHist(tree,dX,dY)
+  rightXHist = rightHist.reduce(ROOT.RooArgSet(dX))
+  rightYHist = rightHist.reduce(ROOT.RooArgSet(dY))
+  rightXPdf = ROOT.RooHistPdf("rightXPdf","rightXPdf",ROOT.RooArgSet(dX),rightXHist)
+  rightYPdf = ROOT.RooHistPdf("rightYPdf","rightYPdf",ROOT.RooArgSet(dY),rightYHist)
+  print("Creating single site pdf")
+  ssHist = CreateXYsingleSiteHist(tree,dX,dY)
+  ssXHist = ssHist.reduce(ROOT.RooArgSet(dX))
+  ssYHist = ssHist.reduce(ROOT.RooArgSet(dY))
+  ssXPdf = ROOT.RooHistPdf("ssXPdf","ssXPdf",ROOT.RooArgSet(dX),ssXHist)
+  ssYPdf = ROOT.RooHistPdf("ssYPdf","ssYPdf",ROOT.RooArgSet(dY),ssYHist)
 
-  numRight = ROOT.RooRealVar("numRight","numRight",120000,1,2e6)
-  numFaulty = ROOT.RooRealVar("numFaulty","numFaulty",6000,1,5e5)
+  c1 = ROOT.TCanvas("X")
+  print("dX RMS of data/pdf: "+str(data.rmsVar(dX).getVal())+"/"+str(rightHist.rmsVar(dX).getVal()))
+  data.plotOn(frameX)
+  rightXPdf.plotOn(frameX)
+  ssXPdf.plotOn(frameX,ROOT.RooFit.LineColor(ROOT.kRed))
+  frameX.Draw()
+  c1.Update()
 
-  #totalPdf = ROOT.RooAddPdf("totalPdf","totalPdf",ROOT.RooArgList(rightPdf,faultyPdf),ROOT.RooArgList(numRight,numFaulty))
-  totalPdf = rightPdf
-
-  numRight.Print()
-  numFaulty.Print()
-  frame = dX.frame()
-  data.plotOn(frame)
-  totalPdf.plotOn(frame)
-  frame.Draw()
-  raw_input("c")
-
-  nll = ROOT.RooNLLVar("nll","nll",totalPdf,data,ROOT.RooFit.Extended(True),ROOT.RooFit.NumCPU(4))
-  minimizer = ROOT.RooMinuit(nll)
-  print("Starting fit")
-  minimizer.migrad()
-  print("Fit finished")
-
-
-  frame = dX.frame()
-  data.plotOn(frame)
-  totalPdf.plotOn(frame)
-  frame.Draw()
-
-  c2 = ROOT.TCanvas("c2")
-  resid = frame.residHist()
-  frame2 = dX.frame()
-  frame2.addPlotable(resid,"P")
-  frame2.Draw()
+  c2 = ROOT.TCanvas("Y")
+  print("dY RMS of data/pdf: "+str(data.rmsVar(dY).getVal())+"/"+str(rightHist.rmsVar(dY).getVal()))
+  data.plotOn(frameY)
+  rightYPdf.plotOn(frameY)
+  ssYPdf.plotOn(frameY,ROOT.RooFit.LineColor(ROOT.kRed))
+  frameY.Draw()
+  c2.Update()
   raw_input("q")
 
 def CreateHistogramPdf(hist,name,dX):
@@ -55,21 +46,27 @@ def CreateHistogramPdf(hist,name,dX):
   histPdf = ROOT.EXOhistPdf(name+"Pdf",name+"Pdf",ROOT.RooArgList(dX),dataHist,0)
   return histPdf,dataHist
 
-def CreateXrightCombinationPdf(tree,dX):
+def CreateXYsingleSiteHist(tree,dX,dY):
+  tempfile = ROOT.TFile("tempfile.root","RECREATE")
+  copytree = tree.CopyTree("NCL == 1 && abs(CC.fX) < 200 && CC.fRawEnergy > 300 && dX < "+str(dX.getMax())+" && dX > "+str(dX.getMin())+" && dY < "+str(dY.getMax())+" && dY > "+str(dY.getMin()))
+  data = ROOT.RooDataSet("data","data",ROOT.RooArgSet(dX,dY),ROOT.RooFit.Import(copytree))
+  histSingleSite = ROOT.RooDataHist("histSingleSite","histSingleSite",ROOT.RooArgSet(dX,dY))
+  histSingleSite.add(data)
+  return histSingleSite
+
+def CreateXYrightCombinationHist(tree,dX,dY):
   dU = ROOT.RooRealVar("dU","dU",dX.getMin(),dX.getMax())
   dV = ROOT.RooRealVar("dV","dV",dX.getMin(),dX.getMax())
-  fRawEnergy = ROOT.RooRealVar("fRawEnergy","fRawEnergy",0,10000)
-  NCL = ROOT.RooRealVar("NCL","NCL",0,20)
-  dataUV = ROOT.RooDataSet("dataUV","dataUV",tree,ROOT.RooArgSet(dU,dV,fRawEnergy,NCL),"NCL == 2 && fRawEnergy > 400 && dU < "+str(dU.getMax())+" && dU > "+str(dU.getMin())+" && dV < "+str(dV.getMax())+" && dV > "+str(dV.getMin()))
+  tempfile = ROOT.TFile("tempfile.root","RECREATE")
+  copytree = tree.CopyTree("abs(CC.fX) < 200 && CC.fRawEnergy > 300 && dU < "+str(dU.getMax())+" && dU > "+str(dU.getMin())+" && dV < "+str(dV.getMax())+" && dV > "+str(dV.getMin()))
+  dataUV = ROOT.RooDataSet("dataUV","dataUV",ROOT.RooArgSet(dU,dV),ROOT.RooFit.Import(copytree))
   dX_formula = ROOT.RooFormulaVar("dX","dX","dV - dU",ROOT.RooArgList(dU,dV))
+  dY_formula = ROOT.RooFormulaVar("dY","dY","(dU + dV) / sqrt(3.0)",ROOT.RooArgList(dU,dV))
   dataUV.addColumn(dX_formula)
-  histFullRight = ROOT.RooDataHist("histFullRight","histFullRight",ROOT.RooArgSet(dX))
-  histFullRight.add(dataUV,"dX < "+str(dX.getMax())+" && dX > "+str(dX.getMin()))
-  del dataUV
-  histX_Right = histFullRight.reduce(ROOT.RooArgSet(dX))
-  del histFullRight
-  dX_RightPdf = ROOT.RooHistPdf("dX_RightPdf","dX_RightPdf",ROOT.RooArgSet(dX),histX_Right)
-  return dX_RightPdf,histX_Right
+  dataUV.addColumn(dY_formula)
+  histFullRight = ROOT.RooDataHist("histFullRight","histFullRight",ROOT.RooArgSet(dX,dY))
+  histFullRight.add(dataUV)
+  return histFullRight
 
 def CreateXgaussianPdf(dX,mean,sigma):
   dX_GaussianPdf = ROOT.RooGaussian("dX_GaussianPdf","dX_GaussianPdf",dX,mean,sigma)
@@ -96,11 +93,10 @@ def CreateXfaultyCombinationPdf(N,dX,attenuation):
   dX_FaultyPdf = ROOT.RooHistPdf("dX_FaultyPdf","dX_FaultyPdf",ROOT.RooArgSet(dX),histX_Faulty)
   return dX_FaultyPdf,histX_Faulty
 
-def CreateXdataSet(tree,dX):
-  fRawEnergy = ROOT.RooRealVar("fRawEnergy","fRawEnergy",0,10000)
-  NCL = ROOT.RooRealVar("NCL","NCL",0,20)
-  dataFull = ROOT.RooDataSet("dataFull","dataFull",tree,ROOT.RooArgSet(dX,fRawEnergy,NCL),"NCL == 2 && fRawEnergy > 400 && dX < "+str(dX.getMax())+" && dX > "+str(dX.getMin()))
-  dataX = dataFull.reduce(ROOT.RooArgSet(dX))
+def CreateXYdataSet(tree,dX,dY):
+  tempfile = ROOT.TFile("tempfile.root","RECREATE")
+  copytree = tree.CopyTree("abs(CC.fX) < 200 && CC.fRawEnergy > 300 && dX < "+str(dX.getMax())+" && dX > "+str(dX.getMin()))
+  dataX = ROOT.RooDataSet("dataFull","dataFull",ROOT.RooArgSet(dX,dY),ROOT.RooFit.Import(copytree))
   return dataX
 
 def GetDistance(r1,r2):
@@ -150,15 +146,15 @@ def UVtoXY(u,v):
   return x,y
 
 if __name__ == "__main__":
-  if len(sys.argv) != 3:
-    print("usage: "+sys.argv[0]+" AccuracyFile.root FaultyHist.root")
-    print("AccuracyFile.root should be a file created by ReconAccuracyStudy.py")
-    print("FaultyHist.root should be a file created by FaultyClusteringDXpdf.py")
+  if len(sys.argv) != 2:
+    print("usage: "+sys.argv[0]+" AccuracyFile.root")
+    print("\nAccuracyFile.root should be a file created by ReconAccuracyStudy.py")
+    #print("FaultyHist.root should be a file created by FaultyClusteringDXpdf.py")
     sys.exit(1)
-  ROOT.gSystem.Load("libEXOUtilities")
+  #ROOT.gSystem.Load("libEXOUtilities")
   ROOT.gSystem.Load("~/EXO/EXO_Fitting/EXO_Fitting/lib/libEXOFitting")
-  f2 = ROOT.TFile(sys.argv[2])
-  hist = f2.Get("hDX")
+  #f2 = ROOT.TFile(sys.argv[2])
+  #hist = f2.Get("hDX")
   f = ROOT.TFile(sys.argv[1])
   t = f.Get("AccuracyTree")
-  main(t,hist)
+  main(t)
