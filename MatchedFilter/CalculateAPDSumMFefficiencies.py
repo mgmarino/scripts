@@ -167,6 +167,7 @@ for i in range(nevents):
       else:
         nsc[0] = 0
       outtree.Fill()
+    for o in [doubleWFnorth, doubleWFsouth, workingWF, finalWFNorth, finalWFSouth]: o.IsA().Destructor(o)
 outfile.cd()
 outtree.Write()
 northenergyhist.Write()
