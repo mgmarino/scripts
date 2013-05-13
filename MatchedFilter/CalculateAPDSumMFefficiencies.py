@@ -20,12 +20,12 @@ nsc = array('i',[0])
 chan = array('i',[0])
 
 time = 1024*1000
-nevents = 20000
+nevents = 10000
 maxmagnitude = 15000
 #thresholds = [4.0,4.5,5.0,5.5,6.0]
-thresholds = [4.0,5.0]
+thresholds = [5.0]
 #windows = [0,2,4,6,8,10,12,14,16]
-windows = [0,4]
+windows = [4]
 gain = ROOT.ADC_BITS/ROOT.APD_ADC_FULL_SCALE_ELECTRONS*ROOT.APD_GAIN
 napdspp = 36
 baseline = float(ROOT.APD_ADC_BASELINE_COUNTS*napdspp)
